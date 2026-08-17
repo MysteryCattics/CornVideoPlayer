@@ -1,45 +1,52 @@
-build-macos:
-  name: Build CVP macOS
-  runs-on: macos-latest
+name: Build CVP macOS
 
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+on:
+  push:
+  workflow_dispatch:
 
-    - name: Install OpenSSL
-      run: |
-        brew install openssl@3
+jobs:
+  build-macos:
+    name: Build CVP macOS
+    runs-on: macos-latest
 
-    - name: Create bin directory
-      run: |
-        mkdir -p bin
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Build macOS ARM64
-      run: |
-        clang ./cliLINUX.c \
-          -I"$(brew --prefix openssl@3)/include" \
-          -L"$(brew --prefix openssl@3)/lib" \
-          -lcrypto \
-          -o ./bin/cvp-macos-arm64
+      - name: Install OpenSSL
+        run: |
+          brew install openssl@3
 
-    - name: Build macOS x86_64
-      run: |
-        clang ./cliLINUX.c \
-          -arch x86_64 \
-          -I"$(brew --prefix openssl@3)/include" \
-          -L"$(brew --prefix openssl@3)/lib" \
-          -lcrypto \
-          -o ./bin/cvp-macos-x64
+      - name: Create bin directory
+        run: |
+          mkdir -p bin
 
-    - name: Check binaries
-      run: |
-        file ./bin/cvp-macos-arm64
-        file ./bin/cvp-macos-x64
+      - name: Build macOS ARM64
+        run: |
+          clang ./cliLINUX.c \
+            -I"$(brew --prefix openssl@3)/include" \
+            -L"$(brew --prefix openssl@3)/lib" \
+            -lcrypto \
+            -o ./bin/cvp-macos-arm64
 
-    - name: Upload macOS binaries
-      uses: actions/upload-artifact@v4
-      with:
-        name: cvp-macos
-        path: |
-          bin/cvp-macos-arm64
-          bin/cvp-macos-x64
+      - name: Build macOS x86_64
+        run: |
+          clang ./cliLINUX.c \
+            -arch x86_64 \
+            -I"$(brew --prefix openssl@3)/include" \
+            -L"$(brew --prefix openssl@3)/lib" \
+            -lcrypto \
+            -o ./bin/cvp-macos-x64
+
+      - name: Check binaries
+        run: |
+          file ./bin/cvp-macos-arm64
+          file ./bin/cvp-macos-x64
+
+      - name: Upload macOS binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: cvp-macos
+          path: |
+            bin/cvp-macos-arm64
+            bin/cvp-macos-x64
