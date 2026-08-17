@@ -1,32 +1,28 @@
-name: Build on macOS
+build-macos:
+  name: Build CVP macOS
+  runs-on: macos-latest
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
 
-jobs:
-  build-macos:
-    runs-on: macos-latest
+    - name: Build macOS ARM64
+      run: |
+        clang ./cliMACOS.c \
+          -o ./bin/cvp-macos-arm64 \
+          -lcrypto
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Build macOS x86_64
+      run: |
+        clang ./cliMACOS.c \
+          -arch x86_64 \
+          -o ./bin/cvp-macos-x64 \
+          -lcrypto
 
-      - name: Install dependencies
-        run: |
-          brew update
-          brew install ninja cmake
-
-      - name: Configure project
-        run: cmake -B build -G Ninja
-
-      - name: Build project
-        run: cmake --build build --config Release
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-build
-          path: build/**
+    - name: Upload macOS binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: cvp-macos
+        path: |
+          bin/cvp-macos-arm64
+          bin/cvp-macos-x64
