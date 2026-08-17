@@ -7,7 +7,19 @@ on:
 jobs:
   build-macos:
     name: Build CVP macOS
-    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-14
+            output: cvp-macos-arm64
+
+          - arch: x64
+            runner: macos-13
+            output: cvp-macos-x64
+
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Checkout
@@ -21,32 +33,20 @@ jobs:
         run: |
           mkdir -p bin
 
-      - name: Build macOS ARM64
+      - name: Build
         run: |
           clang ./cliLINUX.c \
             -I"$(brew --prefix openssl@3)/include" \
             -L"$(brew --prefix openssl@3)/lib" \
             -lcrypto \
-            -o ./bin/cvp-macos-arm64
+            -o "./bin/${{ matrix.output }}"
 
-      - name: Build macOS x86_64
+      - name: Check architecture
         run: |
-          clang ./cliLINUX.c \
-            -arch x86_64 \
-            -I"$(brew --prefix openssl@3)/include" \
-            -L"$(brew --prefix openssl@3)/lib" \
-            -lcrypto \
-            -o ./bin/cvp-macos-x64
+          file "./bin/${{ matrix.output }}"
 
-      - name: Check binaries
-        run: |
-          file ./bin/cvp-macos-arm64
-          file ./bin/cvp-macos-x64
-
-      - name: Upload macOS binaries
+      - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: cvp-macos
-          path: |
-            bin/cvp-macos-arm64
-            bin/cvp-macos-x64
+          name: ${{ matrix.output }}
+          path: ./bin/${{ matrix.output }}
