@@ -1,78 +1,32 @@
-  # ============================================================
-  # macOS Intel x86_64
-  # ============================================================
+name: Build on macOS
 
-  build-macos-x64:
-    name: macOS x86_64
-    runs-on: macos-13
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install OpenSSL
-        run: |
-          brew install openssl@3
-
-      - name: Build
-        run: |
-          mkdir -p bin
-
-          clang \
-            -O2 \
-            ./cliLINUX.c \
-            -o ./bin/cvp-macos-x64 \
-            -I"$(brew --prefix openssl@3)/include" \
-            -L"$(brew --prefix openssl@3)/lib" \
-            -lcrypto
-
-      - name: Check
-        run: |
-          file ./bin/cvp-macos-x64
-          ./bin/cvp-macos-x64 --version
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: cvp-macos-x64
-          path: bin/cvp-macos-x64
-
-
-  # ============================================================
-  # macOS Apple Silicon ARM64
-  # ============================================================
-
-  build-macos-arm64:
-    name: macOS ARM64
-    runs-on: macos-14
+jobs:
+  build-macos:
+    runs-on: macos-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install OpenSSL
+      - name: Install dependencies
         run: |
-          brew install openssl@3
+          brew update
+          brew install ninja cmake
 
-      - name: Build
-        run: |
-          mkdir -p bin
+      - name: Configure project
+        run: cmake -B build -G Ninja
 
-          clang \
-            -O2 \
-            ./cliLINUX.c \
-            -o ./bin/cvp-macos-arm64 \
-            -I"$(brew --prefix openssl@3)/include" \
-            -L"$(brew --prefix openssl@3)/lib" \
-            -lcrypto
+      - name: Build project
+        run: cmake --build build --config Release
 
-      - name: Check
-        run: |
-          file ./bin/cvp-macos-arm64
-          ./bin/cvp-macos-arm64 --version
-
-      - name: Upload
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cvp-macos-arm64
-          path: bin/cvp-macos-arm64
+          name: macos-build
+          path: build/**
