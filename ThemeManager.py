@@ -377,7 +377,7 @@ class ThemeDialog(QDialog):
         super().__init__()
         self.current_theme = current_theme
         self.setWindowTitle("Выбор цветовой темы")
-        self.setFixedSize(550, 450)
+        self.setFixedSize(700, 500)
         self.setStyleSheet("""
             QDialog {
                 background-color: #1a1a1a;

@@ -18,9 +18,9 @@ BASE_DIR = Path(__file__).resolve().parent  # добавь это после и�
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("CORN SECURE PLAYER")
-        self.setGeometry(100, 100, 900, 550)
-        self.setMinimumSize(700, 400)
+        self.setWindowTitle("CORN SECURE VIDEO PLAYER")
+        self.setGeometry(100, 100, 900, 600)
+        self.setMinimumSize(700, 600)
         self.setWindowIcon(QIcon(str(BASE_DIR / "Logo.ico")))
         
         self.central_widget = QWidget()
